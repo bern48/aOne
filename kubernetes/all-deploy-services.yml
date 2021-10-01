@@ -1,0 +1,205 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2021-09-28T20:49:56Z"
+    labels:
+      run: aone-pod
+    name: aone-pod
+    namespace: default
+    resourceVersion: "146415"
+    uid: a50dfc0b-e610-4dc5-aa86-83a4a3839845
+  spec:
+    containers:
+    - env:
+      - name: USER
+        valueFrom:
+          secretKeyRef:
+            key: USER
+            name: oracle-cred-secret
+      - name: PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: PASSWORD
+            name: oracle-cred-secret
+      - name: CONN_STRING
+        valueFrom:
+          secretKeyRef:
+            key: CONN_STRING
+            name: oracle-cred-secret
+      image: sjc.ocir.io/idnygso6gagh/ce_bern_aone:aone_v1
+      imagePullPolicy: IfNotPresent
+      name: aone-pod
+      ports:
+      - containerPort: 3050
+        protocol: TCP
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-jsnbd
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    imagePullSecrets:
+    - name: ocirsecret
+    nodeName: 10.0.0.143
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoSchedule
+      key: node.cloudprovider.kubernetes.io/uninitialized
+      operator: Equal
+      value: "true"
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: default-token-jsnbd
+      secret:
+        defaultMode: 420
+        secretName: default-token-jsnbd
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2021-09-28T20:49:56Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2021-09-28T20:49:57Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2021-09-28T20:49:57Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2021-09-28T20:49:56Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: cri-o://188f9ebf937809a37953b58dd2f28b868260cfd4235bf69fd38f39a5941ec58e
+      image: sjc.ocir.io/idnygso6gagh/ce_bern_aone:aone_v1
+      imageID: sjc.ocir.io/idnygso6gagh/ce_bern_aone@sha256:dd9e862d62f0c6319a18b13e726d09190b9f4989f4e880e3fdfef2853424c7f9
+      lastState: {}
+      name: aone-pod
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2021-09-28T20:49:57Z"
+    hostIP: 10.0.0.143
+    phase: Running
+    podIP: 10.244.0.137
+    podIPs:
+    - ip: 10.244.0.137
+    qosClass: BestEffort
+    startTime: "2021-09-28T20:49:56Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: "2021-09-27T20:57:34Z"
+    labels:
+      component: apiserver
+      provider: kubernetes
+    name: kubernetes
+    namespace: default
+    resourceVersion: "210"
+    uid: 5d573c62-f8d5-458d-9ca5-58a52662e762
+  spec:
+    clusterIP: 10.96.0.1
+    clusterIPs:
+    - 10.96.0.1
+    ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 6443
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      service.beta.kubernetes.io/oci-load-balancer-shape: 100Mbps
+    creationTimestamp: "2021-09-28T21:01:57Z"
+    labels:
+      type: lb
+    name: lb-service
+    namespace: default
+    resourceVersion: "147645"
+    uid: 242b9fcf-33a2-4935-b353-e2f216352c0e
+  spec:
+    clusterIP: 10.96.64.60
+    clusterIPs:
+    - 10.96.64.60
+    externalTrafficPolicy: Cluster
+    ports:
+    - nodePort: 30675
+      port: 80
+      protocol: TCP
+      targetPort: 3050
+    selector:
+      run: aone-pod
+    sessionAffinity: None
+    type: LoadBalancer
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: "2021-09-28T16:45:22Z"
+    name: my-service
+    namespace: default
+    resourceVersion: "121358"
+    uid: 74cadd37-194b-4e34-aa9f-f11138a5b1fc
+  spec:
+    clusterIP: 10.96.231.95
+    clusterIPs:
+    - 10.96.231.95
+    externalTrafficPolicy: Cluster
+    ports:
+    - nodePort: 30080
+      port: 80
+      protocol: TCP
+      targetPort: 3050
+    selector:
+      run: aone-pod
+    sessionAffinity: None
+    type: NodePort
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: "2021-09-28T17:11:17Z"
+    name: oracle-service
+    namespace: default
+    resourceVersion: "124059"
+    uid: d2da25cd-9937-4563-a082-26decb607de9
+  spec:
+    externalName: ceberntestdb.sub01081956580.vcnberns.oraclevcn.com
+    sessionAffinity: None
+    type: ExternalName
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

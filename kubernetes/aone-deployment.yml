@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aone-deployment
+  labels:
+    run: aone
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: aone-pod
+  template:
+    metadata:
+     labels:
+      run: aone-pod
+    spec:
+      containers:
+      - image: sjc.ocir.io/idnygso6gagh/ce_bern_aone:aone_v1
+        name: aone-container
+        ports:
+        - containerPort: 3050
+        env:
+        - name: USER
+          valueFrom:
+            secretKeyRef:
+             name: oracle-cred-secret
+             key: USER
+        - name: PASSWORD
+          valueFrom:
+           secretKeyRef:
+             name: oracle-cred-secret
+             key: PASSWORD
+        - name: CONN_STRING
+          valueFrom:
+           secretKeyRef:
+            name: oracle-cred-secret
+            key: CONN_STRING
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      imagePullSecrets:
+       - name: ocirsecret
+      tolerations:
+      - key: "node.cloudprovider.kubernetes.io/uninitialized"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+

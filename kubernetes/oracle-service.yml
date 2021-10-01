@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracle-service
+spec:
+  type: ExternalName
+  externalName: ceberntestdb.sub01081956580.vcnberns.oraclevcn.com
+#  ports:
+#  - port: 1521
+#---
+#kind: Endpoints
+#apiVersion: v1
+#metadata:
+#  name: oracle-service
+#subsets:
+#  - addresses:
+#        - ip: 10.96.231.97
+#    ports:
+#      - port: 1521
+#        name: oracle-service
