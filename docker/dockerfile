@@ -1,0 +1,67 @@
+FROM oraclelinux:7-slim
+
+MAINTAINER oracle
+
+# ==========================================
+# Install from yum
+RUN yum -y install python3
+RUN yum -y install unzip
+RUN yum -y install libaio
+RUN yum install -y gcc-c++ make
+RUN yum -y install git
+RUN yum -y install nano
+RUN yum -y install iputils
+RUN yum -y install wget
+
+# Setup oracle instant client and sqlcl
+ENV SQLPLUS oracle-instantclient-sqlplus-21.3.0.0.0-1.x86_64.rpm
+ENV SQLCL sqlcl-21.1.1.113.1704.zip
+ENV INSTANT_CLIENT oracle-instantclient-basic-21.3.0.0.0-1.x86_64.rpm
+ENV NODE_JS nodejs-14.17.6-1.0.1.el7.x86_64.rpm
+
+ENV USER admin
+ENV PASSWORD OR4cle#-12345
+ENV CONN_STRING ceberntestdb.sub01081956580.vcnberns.oraclevcn.com:1521/BerPDB.sub01081956580.vcnberns.oraclevcn.com
+
+WORKDIR /opt/oracle/lib
+RUN wget https://download.oracle.com/otn_software/linux/instantclient/213000/oracle-instantclient-basic-21.3.0.0.0-1.x86_64.rpm
+RUN wget https://download.oracle.com/otn_software/linux/instantclient/213000/oracle-instantclient-sqlplus-21.3.0.0.0-1.x86_64.rpm
+RUN wget https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-21.1.1.113.1704.zip
+RUN wget https://yum.oracle.com/repo/OracleLinux/OL7/developer/nodejs14/x86_64/getPackage/nodejs-14.17.6-1.0.1.el7.x86_64.rpm
+
+RUN echo "Installing instant client........" && \
+   rpm -ivh ${INSTANT_CLIENT} && \
+   echo "Installing SQL*Plus..........." && \
+   rpm -ivh ${SQLPLUS} && \
+   unzip ${SQLCL} && \
+   rm ${INSTANT_CLIENT} ${SQLPLUS} ${SQLCL}
+RUN echo "installing nodejs .........." && \
+   rpm -ivh ${NODE_JS}  && \
+   rm ${NODE_JS}   
+
+
+ENV LD_LIBRARY_PATH /usr/lib/oracle/21/client64/lib/:$LD_LIBRARY_PATH
+ENV PATH $PATH:/usr/lib/oracle/21/client64/bin:/opt/oracle/sqlcl/bin
+ENV ORACLE_HOME /opt/oracle/lib/instantclient_21
+ENV ORACLE_BASE /opt/oracle/lib/instantclient_21
+
+
+# ==========================================
+# install node app
+WORKDIR /opt/oracle/tools/nodejs
+RUN mkdir sdk apps
+# Get the aOne node app
+WORKDIR /opt/oracle/tools/nodejs/apps
+RUN git clone https://github.com/bern48/aOne-forkbern && \
+    mv aOne-forkbern/* . && \
+    rm -r aOne-forkbern
+RUN npm install package.json
+RUN npm install express
+RUN npm install jwt-simple
+RUN npm install lodash
+RUN npm install body-parser
+RUN npm install https://github.com/oracle/node-oracledb/releases/download/v5.2.0/oracledb-src-5.2.0.tgz
+
+EXPOSE 3050
+ENTRYPOINT ["node"]
+CMD ["server.js"]
